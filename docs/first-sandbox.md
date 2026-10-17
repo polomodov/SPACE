@@ -126,6 +126,22 @@ If deletion previously returned an operation ID, the example resumes polling tha
 
 The private run directory and `state.json` remain after cleanup. They contain no saved bearer tokens, but customized request bodies and command output can contain secrets. Remove the directory when you no longer need its records; do not publish it or commit it.
 
+<a id="llm-agent"></a>
+
+## Connect an LLM agent
+
+The [LLM agent example](../examples/llm_agent.py) puts the same API calls under a model. Claude receives a task and one `run_command` tool. Each tool call becomes a command session (`sh -c`) in a single sandbox, and the exit code, stdout, and stderr go back to Claude until it answers. Files persist between calls; shell state does not.
+
+It needs the Anthropic Python SDK and an Anthropic credential in addition to this guide's environment:
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=...   # or sign in with `ant auth login`
+python3 examples/llm_agent.py "Report this sandbox's kernel and count the primes below 100000"
+```
+
+The script prints each command and its output, then the answer, and deletes the sandbox even after a failure. Pass `--keep` to leave it running; `python3 examples/first_sandbox.py inspect` and `delete` accept the printed run directory. `seed:latest` has a shell and core utilities but no Python; set `SPACE_TEMPLATE=code-runtime:latest` if your deployment has published that template. `CLAUDE_MODEL` and `CLAUDE_EFFORT` choose the model (default `claude-opus-5-5`) and effort (default `medium`).
+
 <a id="if-a-step-fails"></a>
 
 ## Troubleshoot failures
